@@ -5,7 +5,10 @@ $app.strings = {
     "SEARCH": "Search",
     "PREVIEW": "Preview",
     "PREV": "Prev",
-    "NEXT": "Next"
+    "NEXT": "Next",
+    "INVALID_PAGE":"Invalid Page",
+    "DL": "Download",
+    "SAVED": "Saving Succeed"
   },
   "zh-Hans": {
     "TITLE": "yande.re 获取器",
@@ -13,7 +16,10 @@ $app.strings = {
     "SEARCH": "搜索",
     "PREVIEW": "预览",
     "PREV": "上页",
-    "NEXT": "下页"
+    "NEXT": "下页",
+    "INVALID_PAGE":"页码无效",
+    "DL": "直接保存",
+    "SAVED": "保存到相册成功"
   }
 }
 
@@ -75,7 +81,7 @@ $ui.render({
         if (currentPage > 0) {
           search()
         } else {
-          $ui.toast("invalid page number")
+          $ui.error($l10n("INVALID_PAGE"))
         }
       }
     }
@@ -108,7 +114,7 @@ $ui.render({
           currentPage++
           search()
         } else {
-          $ui.toast("invalid page number")
+          $ui.error($l10n("INVALID_PAGE"))
         }
       }
     }
@@ -195,11 +201,16 @@ function search() {
       $ui.loading(false)
       //$console.info(resp.data.posts)
       render2(resp.data.posts)
+      $("list").scrollTo({
+        indexPath: $indexPath(0, 0),
+        animated: true // 默认为 true
+      })
     }
   })
 }
 
 function preview(post) {
+  // get preview
   if ($cache.get(post.id)) {
     showpreview(post)
   } else {
@@ -230,6 +241,28 @@ function showpreview(post) {
           contentMode: $contentMode.scaleAspectFit
         },
         layout: $layout.fill
+      },
+      {
+        type: "button",
+        props: {
+          title: $l10n("DL"),
+          id: "dl"
+        },
+        layout: function (make, view) {
+          make.left.bottom.inset(10)
+          //make.size.equalTo($size(64, 32))
+          make.height.equalTo(32)
+        },
+        events: {
+          tapped: function (sender) {
+            $photo.save({
+              data: $cache.get(post.id),
+              handler: function (success) {
+                $ui.toast("Succeed")
+              }
+            })
+          }
+        }
       }
     ]
   })
