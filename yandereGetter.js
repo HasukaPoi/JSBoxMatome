@@ -184,6 +184,7 @@ function render2(posts) {
       preview: { src: post.preview_url },
       tags: { text: post.id + "\t" + post.sample_width + "*" + post.sample_height + "\n" + post.tags },
       sample: post.sample_url,
+      jpeg: post.jpeg_url,
       id: post.id,
       jpeg_width: post.jpeg_width,
       jpeg_height: post.jpeg_height,
@@ -281,7 +282,23 @@ function showpreview(post) {
         },
         events: {
           tapped: function (sender) {
-            $ui.toast("暂未实现")
+            //$ui.toast("暂未实现")
+            $ui.loading(true)
+            $http.download({
+              url: post.jpeg_url,
+              progress: function (bytesWritten, totalBytes) {
+                var percentage = bytesWritten * 1.0 / totalBytes
+              },
+              handler: function (resp) {
+                //$share.sheet(resp.data)
+                $photo.save({
+                  data: resp.data,
+                  handler: function (success) {
+                    $ui.toast("Succeed")
+                  }
+                })
+              }
+            })
           }
         }
       }
