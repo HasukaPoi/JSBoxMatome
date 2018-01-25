@@ -288,6 +288,7 @@ function showpreview(post) {
               url: post.jpeg_url,
               progress: function (bytesWritten, totalBytes) {
                 var percentage = bytesWritten * 1.0 / totalBytes
+                $ui.progress(percentage)
               },
               handler: function (resp) {
                 //$share.sheet(resp.data)
