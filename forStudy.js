@@ -3,13 +3,17 @@ $app.strings = {
     "TITLE": "yande.re Getter",
     "TAGS": "Tags",
     "SEARCH": "Search",
-    "PREVIEW": "Preview"
+    "PREVIEW": "Preview",
+    "PREV": "Prev",
+    "NEXT": "Next"
   },
   "zh-Hans": {
     "TITLE": "yande.re 获取器",
     "TAGS": "关键字",
     "SEARCH": "搜索",
-    "PREVIEW": "预览"
+    "PREVIEW": "预览",
+    "PREV": "上页",
+    "NEXT": "下页"
   }
 }
 
@@ -19,7 +23,6 @@ $ui.render({
   },
   views: [{
     type: "input",
-
     props: {
       id: "keyword",
       type: $kbType.ascii,
@@ -33,7 +36,7 @@ $ui.render({
     events: {
       returned: function (sender) {
         $console.info("returned")
-        currentPage=1
+        currentPage = 1
         search()
       }
     }
@@ -51,8 +54,62 @@ $ui.render({
     events: {
       tapped: function (sender) {
         $console.info("tapped")
-        currentPage=1
+        currentPage = 1
         search()
+      }
+    }
+  }, {
+    type: "button",
+    props: {
+      title: $l10n("PREV"),
+      id: "prev"
+    },
+    layout: function (make, view) {
+      make.left.equalTo($("search").right).offset(20)
+      make.centerY.equalTo($("keyword"))
+      make.width.equalTo(50)
+    },
+    events: {
+      tapped: function (sender) {
+        currentPage--
+        if (currentPage > 0) {
+          search()
+        } else {
+          $ui.toast("invalid page number")
+        }
+      }
+    }
+  }, {
+    type: "label",
+    props: {
+      text: "",
+      id: "pageIn",
+      align: $align.center
+    },
+    layout: function (make, view) {
+      make.left.equalTo($("prev").right).offset(5)
+      make.centerY.equalTo($("keyword"))
+      make.width.equalTo(10)
+    }
+  }, {
+    type: "button",
+    props: {
+      title: $l10n("NEXT"),
+      id: "next"
+    },
+    layout: function (make, view) {
+      make.left.equalTo($("pageIn").right).offset(5)
+      make.centerY.equalTo($("keyword"))
+      make.width.equalTo(50)
+    },
+    events: {
+      tapped: function (sender) {
+        if (currentPage > 0) {
+          currentPage++
+          search()
+        } else {
+          $ui.toast("invalid page number")
+        }
       }
     }
   }, {
@@ -107,7 +164,6 @@ $ui.render({
       pulled: function (sender) {
         search()
       }
-
     }
   }]
 })
@@ -121,7 +177,7 @@ function render2(posts) {
       tags: { text: post.id + "\t" + post.jpeg_width + " * " + post.jpeg_height + "\n" + post.tags },
       sample: post.sample_url,
       id: post.id,
-      ratio:post.jpeg_width/post.jpeg_height
+      ratio: post.jpeg_width / post.jpeg_height
     })
   }
   $("list").data = data
@@ -130,10 +186,11 @@ function render2(posts) {
 
 function search() {
   $("keyword").blur()
+  $("pageIn").text = currentPage
   var keyword = $("keyword").text
   $ui.loading(true)
   $http.get({
-    url: "https://yande.re/post.json?api_version=2&limit=10&tags=" + keyword+"&page="+currentPage,
+    url: "https://yande.re/post.json?api_version=2&limit=15&tags=" + keyword + "&page=" + currentPage,
     handler: function (resp) {
       $ui.loading(false)
       //$console.info(resp.data.posts)
@@ -153,14 +210,12 @@ function preview(post) {
         $ui.loading(false)
         $cache.set(post.id, resp.data)
         showpreview(post)
-        // $console.info(resp.data)
       }
     })
   }
 }
 
 function showpreview(post) {
-  
   $ui.push({
     props: {
       title: $l10n("PREVIEW") + ": " + post.id
@@ -180,4 +235,4 @@ function showpreview(post) {
   })
 }
 
-var currentPage=1;
+var currentPage = 0;
