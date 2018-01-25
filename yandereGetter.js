@@ -6,8 +6,9 @@ $app.strings = {
     "PREVIEW": "Preview",
     "PREV": "Prev",
     "NEXT": "Next",
-    "INVALID_PAGE":"Invalid Page",
+    "INVALID_PAGE": "Invalid Page",
     "DL": "Download",
+    "DL_H": "DL HQ Ver: ",
     "SAVED": "Saving Succeed"
   },
   "zh-Hans": {
@@ -17,8 +18,9 @@ $app.strings = {
     "PREVIEW": "预览",
     "PREV": "上页",
     "NEXT": "下页",
-    "INVALID_PAGE":"页码无效",
+    "INVALID_PAGE": "页码无效",
     "DL": "直接保存",
+    "DL_H": "保存高质量版: ",
     "SAVED": "保存到相册成功"
   }
 }
@@ -180,10 +182,13 @@ function render2(posts) {
     var post = posts[idx]
     data.push({
       preview: { src: post.preview_url },
-      tags: { text: post.id + "\t" + post.jpeg_width + " * " + post.jpeg_height + "\n" + post.tags },
+      tags: { text: post.id + "\t" + post.sample_width + "*" + post.sample_height + "\n" + post.tags },
       sample: post.sample_url,
       id: post.id,
-      ratio: post.jpeg_width / post.jpeg_height
+      jpeg_width: post.jpeg_width,
+      jpeg_height: post.jpeg_height,
+      sample_width: post.sample_width,
+      sample_height: post.sample_height
     })
   }
   $("list").data = data
@@ -261,6 +266,22 @@ function showpreview(post) {
                 $ui.toast("Succeed")
               }
             })
+          }
+        }
+      },
+      {
+        type: "button",
+        props: {
+          title: $l10n("DL_H") + "(" + post.jpeg_width + "*" + post.jpeg_height + ")",
+          id: "dl_h"
+        },
+        layout: function (make, view) {
+          make.left.equalTo($("dl").right).offset(10)
+          make.centerY.equalTo($("dl"))
+        },
+        events: {
+          tapped: function (sender) {
+            $ui.toast("暂未实现")
           }
         }
       }
