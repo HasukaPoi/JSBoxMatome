@@ -21,7 +21,7 @@ $ui.render({
     type: "input",
 
     props: {
-      id: "tags",
+      id: "keyword",
       type: $kbType.default,
       darkKeyboard: true,
       placeholder: $l10n("TAGS")
@@ -43,8 +43,8 @@ $ui.render({
       id: "search"
     },
     layout: function (make, view) {
-      make.left.equalTo($("tags").right).offset(10)
-      make.centerY.equalTo($("tags"))
+      make.left.equalTo($("keyword").right).offset(10)
+      make.centerY.equalTo($("keyword"))
       make.width.equalTo(60)
     },
     events: {
@@ -93,35 +93,11 @@ $ui.render({
       ]
     },
     layout: function (make, view) {
-      make.top.equalTo($("tags").bottom).offset(20)
+      make.top.equalTo($("keyword").bottom).offset(20)
       make.left.right.bottom.equalTo(0)
     }
   }]
 })
-
-
-
-// function render(posts) {
-//   //$console.info(posts)
-//   var data = []
-//   for (var index in posts) {
-//     var item = posts[index]
-//     $console.info(item.id)
-//     data.push({
-//       preview: {
-//         src: item.preview_url
-//       },
-//       tags: {
-//         text: item.id + "\t" + item.jpeg_width + " * " + item.jpeg_height + "\n" + item.tags
-//       },
-//       sample: item.sample.url,
-//       jpeg: item.jpeg_url
-//     })
-//   }
-//   $("list").data = data
-//   $("list").endRefreshing()
-
-// }
 
 function render2(posts) {
   var data = []
@@ -138,17 +114,14 @@ function render2(posts) {
 }
 
 function search() {
-  $cache.clear()
-  var keyword = $("tags").text
+  var keyword = $("keyword").text
+  $ui.loading(true)
   $http.get({
     url: "https://yande.re/post.json?api_version=2&limit=10&tags=" + keyword,
     handler: function (resp) {
+      $ui.loading(false)
       $console.info(resp.data.posts)
       render2(resp.data.posts)
     }
   })
 }
-
-
-$cache.clear()
-
