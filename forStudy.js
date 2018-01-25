@@ -22,8 +22,8 @@ $ui.render({
 
     props: {
       id: "keyword",
-      type: $kbType.default,
-      darkKeyboard: true,
+      type: $kbType.ascii,
+      //darkKeyboard: true,
       placeholder: $l10n("TAGS")
     },
     layout: function (make, view) {
@@ -33,6 +33,7 @@ $ui.render({
     events: {
       returned: function (sender) {
         $console.info("returned")
+        currentPage=1
         search()
       }
     }
@@ -50,6 +51,7 @@ $ui.render({
     events: {
       tapped: function (sender) {
         $console.info("tapped")
+        currentPage=1
         search()
       }
     }
@@ -86,8 +88,8 @@ $ui.render({
       actions: [
         {
           title: "Preview",
-          handler: function(tableView, indexPath) {
-            $ui.toast("preview"+tableView.object(indexPath).sample)
+          handler: function (tableView, indexPath) {
+            $ui.toast("preview" + tableView.object(indexPath).sample)
           }
         }
       ]
@@ -95,6 +97,17 @@ $ui.render({
     layout: function (make, view) {
       make.top.equalTo($("keyword").bottom).offset(20)
       make.left.right.bottom.equalTo(0)
+    },
+    events: {
+      didSelect: function (tableView, indexPath) {
+        var post = tableView.object(indexPath)
+        // $console.info(post.sample)
+        preview(post)
+      },
+      pulled: function (sender) {
+        search()
+      }
+
     }
   }]
 })
@@ -105,8 +118,10 @@ function render2(posts) {
     var post = posts[idx]
     data.push({
       preview: { src: post.preview_url },
-      tags: { text: post.id + "\t" + post.jpeg_width + " * " + post.jpeg_height + "\n" + post.tags},
+      tags: { text: post.id + "\t" + post.jpeg_width + " * " + post.jpeg_height + "\n" + post.tags },
       sample: post.sample_url,
+      id: post.id,
+      ratio:post.jpeg_width/post.jpeg_height
     })
   }
   $("list").data = data
@@ -114,14 +129,55 @@ function render2(posts) {
 }
 
 function search() {
+  $("keyword").blur()
   var keyword = $("keyword").text
   $ui.loading(true)
   $http.get({
-    url: "https://yande.re/post.json?api_version=2&limit=10&tags=" + keyword,
+    url: "https://yande.re/post.json?api_version=2&limit=10&tags=" + keyword+"&page="+currentPage,
     handler: function (resp) {
       $ui.loading(false)
-      $console.info(resp.data.posts)
+      //$console.info(resp.data.posts)
       render2(resp.data.posts)
     }
   })
 }
+
+function preview(post) {
+  if ($cache.get(post.id)) {
+    showpreview(post)
+  } else {
+    $ui.loading(true)
+    $http.download({
+      url: post.sample,
+      handler: function (resp) {
+        $ui.loading(false)
+        $cache.set(post.id, resp.data)
+        showpreview(post)
+        // $console.info(resp.data)
+      }
+    })
+  }
+}
+
+function showpreview(post) {
+  
+  $ui.push({
+    props: {
+      title: $l10n("PREVIEW") + ": " + post.id
+    },
+    views: [
+      {
+        type: "image",
+        props: {
+          // src: post.sample,
+          data: $cache.get(post.id),
+          id: "current",
+          contentMode: $contentMode.scaleAspectFit
+        },
+        layout: $layout.fill
+      }
+    ]
+  })
+}
+
+var currentPage=1;
