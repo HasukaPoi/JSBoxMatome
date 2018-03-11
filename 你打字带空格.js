@@ -4,18 +4,18 @@ $ui.render({
     props: {
       id: "noSpace"
     },
-    layout: function (make, view) {
+    layout: function(make, view) {
       make.left.top.right.inset(10)
       make.width.equalTo(view.width)
       make.height.equalTo(32)
     },
     events: {
-      changed: function (sender) {
+      changed: function(sender) {
         //$console.info("noSpace")
         addSpace()
         $("shuffled").text = shuffle()
       },
-      returned: function (sender) {
+      returned: function(sender) {
         $("noSpace").blur()
       }
     }
@@ -25,15 +25,16 @@ $ui.render({
       title: "复制空格",
       id: "copySpace"
     },
-    layout: function (make, view) {
+    layout: function(make, view) {
       make.left.inset(20)
       make.top.equalTo($("noSpace").bottom).offset(10)
     },
     events: {
-      tapped: function (sender) {
+      tapped: function(sender) {
         $clipboard.text = $("withSpace").text
         $ui.toast("Copied")
-        shuffle()
+        $device.taptic()
+        $app.close()
       }
     }
   }, {
@@ -41,14 +42,16 @@ $ui.render({
     props: {
       title: "复制逆序",
     },
-    layout: function (make, view) {
+    layout: function(make, view) {
       make.left.equalTo($("copySpace").right).offset(10)
       make.top.equalTo($("noSpace").bottom).offset(10)
     },
     events: {
-      tapped: function (sender) {
+      tapped: function(sender) {
         $clipboard.text = flipText()
         $ui.toast("Copied")
+        $device.taptic()
+        $app.close()
       }
     }
   }, {
@@ -56,18 +59,18 @@ $ui.render({
     props: {
       id: "withSpace"
     },
-    layout: function (make, view) {
+    layout: function(make, view) {
       make.left.right.inset(10)
       make.width.equalTo(view.width)
       make.height.equalTo(32)
       make.top.equalTo($("copySpace").bottom).offset(10)
     },
     events: {
-      changed: function (sender) {
+      changed: function(sender) {
         //$console.info("noSpace")
         removeSpace()
       },
-      returned: function (sender) {
+      returned: function(sender) {
         $("withSpace").blur()
       }
     }
@@ -77,12 +80,12 @@ $ui.render({
       title: "生成乱序",
       id: "shuffle"
     },
-    layout: function (make, view) {
+    layout: function(make, view) {
       make.left.inset(20)
       make.top.equalTo($("withSpace").bottom).offset(10)
     },
     events: {
-      tapped: function (sender) {
+      tapped: function(sender) {
         $("shuffled").text = shuffle()
       }
     }
@@ -91,14 +94,16 @@ $ui.render({
     props: {
       title: "复制乱序"
     },
-    layout: function (make, view) {
+    layout: function(make, view) {
       make.left.equalTo($("shuffle").right).offset(10)
       make.top.equalTo($("withSpace").bottom).offset(10)
     },
     events: {
-      tapped: function (sender) {
+      tapped: function(sender) {
         $clipboard.text = $("shuffled").text
         $ui.toast("Copied")
+        $device.taptic()
+        $app.close()
       }
     }
   }, {
@@ -106,18 +111,18 @@ $ui.render({
     props: {
       id: "shuffled"
     },
-    layout: function (make, view) {
+    layout: function(make, view) {
       make.left.right.inset(10)
       make.width.equalTo(view.width)
       make.height.equalTo(32)
       make.top.equalTo($("shuffle").bottom).offset(10)
     },
     events: {
-      changed: function (sender) {
+      changed: function(sender) {
         //$console.info("noSpace")
         removeSpace()
       },
-      returned: function (sender) {
+      returned: function(sender) {
         $("withSpace").blur()
       }
     }
@@ -164,7 +169,7 @@ function flipText() {
 function shuffle() {
   var input = $("noSpace").text
   var arr = input.split("");
-  arr.sort(function () { return Math.random() > 0.5 ? -1 : 1; });
+  arr.sort(function() { return Math.random() > 0.5 ? -1 : 1; });
   var output = (arr.join(""))
   return output
 }
