@@ -6,22 +6,33 @@ This project is some handy tools based on [JSBox](https://itunes.apple.com/us/ap
 [netaddi](https://github.com/netaddi) helped me improved the README. Howerver, because the developer is lazy to update README, the content may be out-of-date.
 
 ## What included
+Sort by ABC, Pinyin(not all).
 
-#### hex.js: Number System Conversion
+### hex.js: Number System Conversion
 
-A script to convert numbers between decimal, hexadecimal, binary and more.
+Convert numbers between decimal, hexadecimal, binary and more.
 
-#### yandereGetter.js: Image Crawler
+### yandereGetter.js: Image Crawler
 
 A crawler that explores and saves images from [yande.re](https://yande.re).
 
-#### 你打字带空格.js: Text Tools
+### 你打字带空格.js: (YOU TYPE WITH SPACING) "Silly" Text Tools
 
 Some text tools, targetting for efficiently made original string looks awesome, such as adding spaces between characters in a text(for emphasizing), reverse the text, and shuffle the characters in the text.
 
-The file name means "YOU TYPE WITH SPACING".
+The "silly" in title is from a slang(with a bit offense) means playful or funny behavior in daily chatting in Chinese.(傻屌, or 沙雕 with similar pronunciation)
 
-#### 晚饭吃什么.js: What for dinner
+### 沙雕键盘.js: "Silly" Keyboard
+
+Now JSBox can run script in keyboard, so I made this as enhanced edition of the above.
+
+Need iOS11 to make "get selected text" work.
+
+### 快速符号复制.js: Quick Clipboard for Symbols
+
+Placed some often-used symbols which are difficult to directly type. Need to be updated to be keyboard extension.
+
+### 晚饭吃什么.js: What for dinner
 
 Randomly select a dinner solution from a list of available dinner sources. 
 
