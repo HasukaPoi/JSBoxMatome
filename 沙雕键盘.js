@@ -14,7 +14,7 @@ $ui.render({
       },
       layout: function(make, view) {
         make.left.inset(10)
-        make.top.inset(10)
+        make.top.inset(5)
         make.height.equalTo(32)
         make.width.equalTo(view.width)
       },
@@ -29,13 +29,13 @@ $ui.render({
     }, {
       type: "button",
       props: {
-        title: "加 上 空 格",
+        title: "加半角空格",
         id: "pushSpace"
       },
       layout: function(make, view) {
-        make.left.inset(20)
-        make.width.equalTo(96)
-        make.top.equalTo($("mainInfo").bottom).offset(10)
+        make.left.inset(10)
+        make.width.equalTo(112)
+        make.top.equalTo($("mainInfo").bottom).offset(5)
       },
       events: {
         tapped: function(sender) {
@@ -49,12 +49,32 @@ $ui.render({
     }, {
       type: "button",
       props: {
-        title: "串符字序逆",
+        title: "加全角空格",
+        id: "pushSpace2"
       },
       layout: function(make, view) {
-        make.width.equalTo(96)
+        make.width.equalTo(112)
         make.left.equalTo($("pushSpace").right).offset(10)
-        make.top.equalTo($("mainInfo").bottom).offset(10)
+        make.top.equalTo($("mainInfo").bottom).offset(5)
+      },
+      events: {
+        tapped: function(sender) {
+          getOrigin()
+          if (typeof(origin) != "undefined") {
+            $keyboard.playInputClick()
+            $keyboard.insert(addSpace(origin,"　"))
+          }
+        }
+      }
+    }, {
+      type: "button",
+      props: {
+        title: "逆序",
+      },
+      layout: function(make, view) {
+        make.width.equalTo(112)
+        make.left.equalTo($("pushSpace2").right).offset(10)
+        make.top.equalTo($("mainInfo").bottom).offset(5)
       },
       events: {
         tapped: function(sender) {
@@ -68,12 +88,12 @@ $ui.render({
     }, {
       type: "button",
       props: {
-        title: "生成乱序串",
+        title: "普通乱序",
         id: "shuffle"
       },
       layout: function(make, view) {
-        make.width.equalTo(96)
-        make.left.inset(20)
+        make.width.equalTo(112)
+        make.left.inset(10)
         make.top.equalTo($("pushSpace").bottom).offset(10)
       },
       events: {
@@ -88,11 +108,11 @@ $ui.render({
     }, {
       type: "button",
       props: {
-        title: "上屏乱序串",
+        title: "→上屏←",
         id: "pushShuffle"
       },
       layout: function(make, view) {
-        make.width.equalTo(96)
+        make.width.equalTo(112)
         make.left.equalTo($("shuffle").right).offset(10)
         make.top.equalTo($("pushSpace").bottom).offset(10)
       },
@@ -105,10 +125,10 @@ $ui.render({
     }, {
       type: "button",
       props: {
-        title: "分词后乱序"
+        title: "分词乱序"
       },
       layout: function(make, view) {
-        make.width.equalTo(96)
+        make.width.equalTo(112)
         make.left.equalTo($("pushShuffle").right).offset(10)
         make.top.equalTo($("pushSpace").bottom).offset(10)
       },
@@ -129,19 +149,6 @@ $ui.render({
                 }
               })
 
-              //$text.tokenize({
-              //  text: "你可能是一个傻屌",
-              //  handler: function(results) {
-              //    var temp=""  
-              //      //$console.info(results)
-              //      for(var index in results){
-              //        temp+=results[index]+" "
-              //      }
-              //      $("preview").text = shuffle2(temp.substring(0, temp.lastIndexOf(" ")))
-              //      $console.info(temp.substring(0, temp.lastIndexOf(" ")))
-              //  }
-              //})
-
             }else {
               $("preview").text = shuffle2(tokenized)
             }
@@ -160,18 +167,38 @@ $ui.render({
         make.left.right.inset(10)
         make.width.equalTo(view.width)
         make.height.equalTo(32)
-        make.top.equalTo($("shuffle").bottom).offset(10)
+        make.top.equalTo($("shuffle").bottom).offset(5)
+      }
+    },{
+      type: "button",
+      props: {
+        title: "引用",
+        id: "quote"
+      },
+      layout: function(make, view) {
+        make.width.equalTo(112)
+        make.left.inset(10)
+        make.top.equalTo($("preview").bottom).offset(5)
+      },
+      events: {
+        tapped: function(sender) {
+          getOrigin()
+          if (typeof(origin) != "undefined") {
+            $keyboard.playInputClick()
+            $keyboard.insert("“"+origin+"”\n——————————\n")
+          }
+        }
       }
     }
   ]
 });
 
-function addSpace(origin) {
-  return origin.split('').join('　');
+function addSpace(origin,opr) {
+  opr=arguments[1]?arguments[1]:" "
+  return origin.split('').join(opr);
 }
 
 function flipText(origin) {
-  " ddd"
   return origin.split('').reverse().join('');
 }
 
