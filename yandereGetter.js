@@ -7,21 +7,27 @@ $app.strings = {
     "PREV": "Prev",
     "NEXT": "Next",
     "INVALID_PAGE": "Invalid Page",
-    "DL": "Download",
-    "DL_H": "DL HQ Ver: ",
-    "SAVED": "Saving Succeed"
+    "DL": "DL SQ",
+    "DL_H": "DL HQ",
+    "SAVED": "Saving succeed",
+    "SHARE": "Ready to share?",
+    "SHARE_QQ": "Share to QQ",
+    "DO_NO": "Do nothing"
   },
   "zh-Hans": {
     "TITLE": "yande.re 获取器",
     "TAGS": "关键字",
     "SEARCH": "搜索",
     "PREVIEW": "预览",
-    "PREV": "上页",
-    "NEXT": "下页",
+    "PREV": "←",
+    "NEXT": "→",
     "INVALID_PAGE": "页码无效",
-    "DL": "直接保存",
-    "DL_H": "保存高质量版: ",
-    "SAVED": "保存到相册成功"
+    "DL": "保存小图",
+    "DL_H": "保存大图 ",
+    "SAVED": "已保存到相册",
+    "SHARE": "是否进行分享？",
+    "SHARE_QQ": "分享到QQ",
+    "DO_NO": "什么都不做"
   }
 }
 
@@ -61,8 +67,8 @@ $ui.render({
     },
     events: {
       tapped: function (sender) {
-        $console.info("tapped")
         currentPage = 1
+        $cache.set("keyw", $("keyword").text)
         search()
       }
     }
@@ -125,39 +131,79 @@ $ui.render({
     props: {
       rowHeight: 96.0,
       separatorInset: $insets(0, 5, 0, 0),
-      template: [
-        {
-          type: "image",
-          props: {
-            id: "preview"
-          },
-          layout: function (make, view) {
-            make.left.top.bottom.inset(5)
-            make.width.equalTo(view.height)
-          }
+      template: [{
+        type: "image",
+        props: {
+          id: "preview"
         },
-        {
-          type: "label",
-          props: {
-            id: "tags",
-            font: $font("bold", 17),
-            lines: 0
-          },
-          layout: function (make) {
-            make.left.equalTo($("preview").right).offset(10)
-            make.top.bottom.equalTo(0)
-            make.right.inset(10)
-          }
+        layout: function (make, view) {
+          make.left.top.bottom.inset(5)
+          make.width.equalTo(view.height)
         }
+      },
+      {
+        type: "label",
+        props: {
+          id: "tags",
+          font: $font("bold", 17),
+          lines: 0
+        },
+        layout: function (make) {
+          make.left.equalTo($("preview").right).offset(10)
+          make.top.bottom.equalTo(0)
+          make.right.inset(10)
+        }
+      }
       ],
-      actions: [
-        {
-          title: "Preview",
-          handler: function (tableView, indexPath) {
-            $ui.toast("preview" + tableView.object(indexPath).sample)
-          }
+      actions: [{
+        title: $l10n("DL_H"),
+        handler: function (tableView, indexPath) {
+          $ui.loading("Downloading")
+          $http.download({
+            url: tableView.object(indexPath).jpeg,
+            progress: function (bytesWritten, totalBytes) {
+              var percentage = bytesWritten * 1.0 / totalBytes
+              $ui.progress(percentage)
+            },
+            handler: function (resp) {
+              $ui.loading(false)
+              $photo.save({
+                data: resp.data,
+                handler: function (success) {
+                  share(resp.data)
+                }
+              })
+            }
+          })
         }
-      ]
+      }, {
+        title: $l10n("DL"),
+        handler: function (tableView, indexPath) {
+          $ui.loading("Downloading")
+          $http.download({
+            url: tableView.object(indexPath).sample,
+            progress: function (bytesWritten, totalBytes) {
+              var percentage = bytesWritten * 1.0 / totalBytes
+              $ui.progress(percentage)
+            },
+            handler: function (resp) {
+              $ui.loading(false)
+              $photo.save({
+                data: resp.data,
+                handler: function (success) {
+                  share(resp.data)
+                }
+              })
+            }
+          })
+        }
+      }, /* {
+        title: $l10n("PREVIEW"),
+        handler: function (tableView, indexPath) {
+          var post = tableView.object(indexPath)
+          preview(post)
+        }
+      } */]
     },
     layout: function (make, view) {
       make.top.equalTo($("keyword").bottom).offset(20)
@@ -166,7 +212,6 @@ $ui.render({
     events: {
       didSelect: function (tableView, indexPath) {
         var post = tableView.object(indexPath)
-        // $console.info(post.sample)
         preview(post)
       },
       pulled: function (sender) {
@@ -176,13 +221,40 @@ $ui.render({
   }]
 })
 
+function share(data) {
+  var message = {
+    title: $l10n("SAVED"),
+    message: $l10n("SHARE"),
+    actions: [{
+      title: $l10n("SHARE_QQ"),
+      handler: function () {
+        $share.qq(data)
+      }
+    }, {
+      title: "Share Sheet",
+      handler: function () {
+        $share.sheet(data)
+      }
+    }, {
+      title: "JSBox Universal",
+      handler: function () {
+        $share.universal(data)
+      }
+    }, {
+      title: $l10n("DO_NO"),
+      style: "Cancel"
+    }]
+  }
+  $ui.action(message)
+}
+
 function render2(posts) {
   var data = []
   for (var idx in posts) {
     var post = posts[idx]
     data.push({
       preview: { src: post.preview_url },
-      tags: { text: post.id + "\t" + post.sample_width + "*" + post.sample_height + "\n" + post.tags },
+      tags: { text: post.id + "\t" + post.jpeg_width + "*" + post.jpeg_height + "\n" + post.tags },
       sample: post.sample_url,
       jpeg: post.jpeg_url,
       id: post.id,
@@ -200,12 +272,11 @@ function search() {
   $("keyword").blur()
   $("pageIn").text = currentPage
   var keyword = $("keyword").text
-  $ui.loading(true)
+  $ui.loading("Downloading")
   $http.get({
     url: "https://yande.re/post.json?api_version=2&limit=15&tags=" + keyword + "&page=" + currentPage,
     handler: function (resp) {
       $ui.loading(false)
-      //$console.info(resp.data.posts)
       render2(resp.data.posts)
       $("list").scrollTo({
         indexPath: $indexPath(0, 0),
@@ -220,7 +291,7 @@ function preview(post) {
   if ($cache.get(post.id)) {
     showpreview(post)
   } else {
-    $ui.loading(true)
+    $ui.loading("Downloading")
     $http.download({
       url: post.sample,
       handler: function (resp) {
@@ -233,78 +304,78 @@ function preview(post) {
 }
 
 function showpreview(post) {
+  $console.info(post.jpeg)
   $ui.push({
     props: {
       title: $l10n("PREVIEW") + ": " + post.id
     },
-    views: [
-      {
-        type: "image",
-        props: {
-          // src: post.sample,
-          data: $cache.get(post.id),
-          id: "current",
-          contentMode: $contentMode.scaleAspectFit
-        },
-        layout: $layout.fill
+    views: [{
+      type: "image",
+      props: {
+        // src: post.sample,
+        data: $cache.get(post.id),
+        id: "current",
+        contentMode: $contentMode.scaleAspectFit
       },
-      {
-        type: "button",
-        props: {
-          title: $l10n("DL"),
-          id: "dl"
-        },
-        layout: function (make, view) {
-          make.left.bottom.inset(10)
-          //make.size.equalTo($size(64, 32))
-          make.height.equalTo(32)
-        },
-        events: {
-          tapped: function (sender) {
-            $photo.save({
-              data: $cache.get(post.id),
-              handler: function (success) {
-                $ui.toast("Succeed")
-              }
-            })
-          }
-        }
+      layout: $layout.fill
+    },
+    {
+      type: "button",
+      props: {
+        title: $l10n("DL"),
+        id: "dl"
       },
-      {
-        type: "button",
-        props: {
-          title: $l10n("DL_H") + "(" + post.jpeg_width + "*" + post.jpeg_height + ")",
-          id: "dl_h"
-        },
-        layout: function (make, view) {
-          make.left.equalTo($("dl").right).offset(10)
-          make.centerY.equalTo($("dl"))
-        },
-        events: {
-          tapped: function (sender) {
-            //$ui.toast("暂未实现")
-            $ui.loading(true)
-            $http.download({
-              url: post.jpeg_url,
-              progress: function (bytesWritten, totalBytes) {
-                var percentage = bytesWritten * 1.0 / totalBytes
-                $ui.progress(percentage)
-              },
-              handler: function (resp) {
-                //$share.sheet(resp.data)
-                $photo.save({
-                  data: resp.data,
-                  handler: function (success) {
-                    $ui.toast("Succeed")
-                  }
-                })
-              }
-            })
-          }
+      layout: function (make, view) {
+        make.left.bottom.inset(10)
+        make.height.equalTo(32)
+      },
+      events: {
+        tapped: function (sender) {
+          $photo.save({
+            data: $cache.get(post.id),
+            handler: function (success) {
+              share($cache.get(post.id))
+            }
+          })
         }
       }
-    ]
+    },
+    {
+      type: "button",
+      props: {
+        title: $l10n("DL_H") + "(" + post.jpeg_width + "*" + post.jpeg_height + ")",
+        id: "dl_h"
+      },
+      layout: function (make, view) {
+        make.left.equalTo($("dl").right).offset(10)
+        make.centerY.equalTo($("dl"))
+      },
+      events: {
+        tapped: function (sender) {
+          $ui.loading("Downloading")
+          $http.download({
+            url: post.jpeg,
+            progress: function (bytesWritten, totalBytes) {
+              var percentage = bytesWritten * 1.0 / totalBytes
+              $ui.progress(percentage)
+            },
+            handler: function (resp) {
+              $ui.loading(false)
+              $photo.save({
+                data: resp.data,
+                handler: function (success) {
+                  share(resp.data)
+                }
+              })
+            }
+          })
+        }
+      }
+    }]
   })
 }
 
 var currentPage = 0;
+if ($cache.get("keyw")) {
+  $("keyword").text = $cache.get("keyw")
+}
