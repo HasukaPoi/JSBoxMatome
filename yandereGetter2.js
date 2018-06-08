@@ -27,7 +27,8 @@ $app.strings = {
     "SAVED": "已保存到相册",
     "SHARE": "是否进行分享？",
     "SHARE_QQ": "分享到QQ",
-    "DO_NO": "什么都不做"
+    "DO_NO": "什么都不做",
+    "SET": "设置"
   }
 }
 
@@ -52,7 +53,7 @@ $ui.render({
         newSearch()
       }
     }
-  }/* , {
+  }, {
     type: "button",
     props: {
       title: $l10n("SEARCH"),
@@ -68,14 +69,14 @@ $ui.render({
         newSearch()
       }
     }
-  } */, {
+  }, {
     type: "button",
     props: {
       title: $l10n("PREV"),
       id: "prev"
     },
     layout: function (make, view) {
-      make.left.equalTo($("keyword").right).offset(15)
+      make.left.equalTo($("search").right).offset(15)
       make.centerY.equalTo($("keyword"))
       make.width.equalTo(32)
     },
@@ -95,7 +96,7 @@ $ui.render({
   }, {
     type: "label",
     props: {
-      text: "0",
+      text: "-",
       id: "pageIn",
       align: $align.center
     },
@@ -206,9 +207,29 @@ $ui.render({
         var post = tableView.object(indexPath)
         //preview(post)
         var message = {
-          title: "请选择需要的图片质量",
+          title: post.id + " 请选择需要的图片质量",
           message: "若JPEG显示为0kB，则与origin为同文件",
           actions: [{
+            title: "查看Tags",
+            handler: function () {
+              $ui.push({
+                props: {
+                  id: "t",
+                  title: "Tags: " + post.id
+                },
+                views: [{
+                  type: "label",
+                  props: {
+                    text: post.tags.text.split(" ").join("\n"),
+                    align: $align.center,
+                    lines: 0,
+                    font: $font("bold", 18)
+                  },
+                  layout: $layout.fill
+                }]
+              })
+            }
+          }, {
             title: "Sample " + makeSizeText(post.sample_width, post.sample_height, post.sample_size),
             handler: function () {
               preview(post, "sample")
@@ -219,12 +240,11 @@ $ui.render({
               preview(post, "jpeg")
             }
           }, {
-            title: "Origin "+makeSizeText(0,0,post.file_size),
+            title: "Origin " + makeSizeText(0, 0, post.file_size),
             handler: function () {
               preview(post, "origin")
             }
-          },
-          {
+          }, {
             title: "取消",
             style: "Cancel"
           }
@@ -244,10 +264,10 @@ function makeSizeText(width, height, size) {
   size /= 1024
   if (size > 1000) {
     size /= 1024
-    size=size.toFixed(2)
+    size = size.toFixed(2)
     unit = "MB"
 
-  } else size=size.toFixed(2)
+  } else size = size.toFixed(2)
   if (width > 0) return "(" + width + "*" + height + ", " + size + unit + ")"
   else return "(" + size + unit + ")"
 
@@ -286,7 +306,7 @@ function render2(posts) {
     var post = posts[idx]
     data.push({
       preview: { src: post.preview_url },
-      tags: { text: post.jpeg_width + "*" + post.jpeg_height },
+      tags: { text: post.tags },
       sample: post.sample_url,
       jpeg: post.jpeg_url,
       origin: post.file_url,
