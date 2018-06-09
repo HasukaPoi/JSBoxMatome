@@ -270,7 +270,6 @@ function newSearch() {
 
 function search() {
   $("keyword").blur()
-  $("pageIn").text = currentPage
   if (currentPage == 0) return;
   //var keyword = $("keyword").text
   var keyword = $cache.get("keyw") ? $cache.get("keyw") : ""
@@ -279,11 +278,25 @@ function search() {
     url: "https://yande.re/post.json?api_version=2&limit=" + ($cache.get("limit") ? $cache.get("limit") : 20) + "&tags=" + keyword + "&page=" + currentPage,
     handler: function (resp) {
       $ui.loading(false)
-      render2(resp.data.posts)
-      $("matrix").scrollTo({
-        indexPath: $indexPath(0, 0),
-        animated: true
-      })
+      $console.info(resp.data)
+      if (resp.data.posts[0]) {
+        $("pageIn").text = currentPage
+        render2(resp.data.posts)
+        $("matrix").scrollTo({
+          indexPath: $indexPath(0, 0),
+          animated: true
+        })
+      } else {
+        if (resp.data) {
+          if (currentPage == 1) {
+            $ui.error("结果为空，请检查关键字")
+          } else {
+            $ui.error("下一页为空")
+          }
+        } else {
+          $ui.error("连接超时，请检查网络")
+        }
+      }
     }
   })
 }
