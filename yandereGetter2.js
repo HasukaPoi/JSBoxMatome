@@ -4,9 +4,6 @@ $app.strings = {
     "TAGS": "Tags",
     "SEARCH": "Search",
     "PREVIEW": "Preview",
-    "PREV": "Prev",
-    "NEXT": "Next",
-    "INVALID_PAGE": "Invalid Page",
     "DL": "DL",
     "DL_H": "DL HQ",
     "SAVED": "Saving succeed",
@@ -19,9 +16,6 @@ $app.strings = {
     "TAGS": "关键字",
     "SEARCH": "搜索",
     "PREVIEW": "预览",
-    "PREV": "←",
-    "NEXT": "→",
-    "INVALID_PAGE": "页码无效",
     "DL": "保存",
     "DL_H": "保存大图 ",
     "SAVED": "已保存到相册",
@@ -41,11 +35,11 @@ $ui.render({
     props: {
       id: "keyword",
       type: $kbType.ascii,
-      //darkKeyboard: true,
       placeholder: $l10n("TAGS")
     },
     layout: function (make, view) {
-      make.left.top.inset(10)
+      make.left.inset(10)
+      make.top.inset(5)
       make.size.equalTo($size(150, 32))
     },
     events: {
@@ -72,11 +66,11 @@ $ui.render({
   }, {
     type: "button",
     props: {
-      title: $l10n("PREV"),
+      title: "←",
       id: "prev"
     },
     layout: function (make, view) {
-      make.left.equalTo($("search").right).offset(15)
+      make.left.equalTo($("search").right).offset(10)
       make.centerY.equalTo($("keyword"))
       make.width.equalTo(32)
     },
@@ -87,28 +81,39 @@ $ui.render({
             currentPage--
             search()
           } else { $ui.error("已经是第一页了") }
-
-        } else {
-          $ui.error($l10n("INVALID_PAGE"))
-        }
+        } else { $ui.error("还没有创建新搜索") }
       }
     }
   }, {
     type: "label",
     props: {
-      text: "-",
+      text: "0",
       id: "pageIn",
       align: $align.center
     },
     layout: function (make, view) {
       make.left.equalTo($("prev").right).offset(5)
       make.centerY.equalTo($("keyword"))
-      make.width.equalTo(10)
+      make.width.equalTo(18)
+    },
+    events: {
+      tapped: function (sender) {
+        if ($("pageIn").text > 0) {
+          $input.text({
+            type: $kbType.number,
+            placeholder: "请输入页码",
+            handler: function (text) {
+              currentPage = text
+              search()
+            }
+          })
+        }
+      }
     }
   }, {
     type: "button",
     props: {
-      title: $l10n("NEXT"),
+      title: "→",
       id: "next"
     },
     layout: function (make, view) {
@@ -122,15 +127,14 @@ $ui.render({
           currentPage++
           search()
         } else {
-          $ui.error($l10n("INVALID_PAGE"))
+          $ui.error($ui.error("还没有创建新搜索"))
         }
       }
     }
   }, {
     type: "button",
     props: {
-      title: $l10n("SET"),
-      id: "set"
+      title: $l10n("SET")
     },
     layout: function (make, view) {
       make.left.equalTo($("next").right).offset(15)
@@ -144,10 +148,9 @@ $ui.render({
           handler: function (title, idx) {
             if (idx == 0) {
               $ui.menu({
-                items: [1, 2, 3, 4, 5].map(function (item) { return item }),
+                items: [1, 2, 3, 4, 5],
                 handler: function (title, idx) {
-                  var count = idx + 1
-                  $cache.set("columns", count)
+                  $cache.set("columns", title)
                   $ui.toast("该设置重启扩展后生效")
                 }
               })
@@ -155,9 +158,8 @@ $ui.render({
               $ui.menu({
                 items: [20, 30, 40, 50],
                 handler: function (title, idx) {
-                  var count = title
-                  $console.info(count)
-                  $cache.set("limit", count)
+                  $console.info(title)
+                  $cache.set("limit", title)
                   $ui.toast("该设置下次搜索生效")
                 }
               })
@@ -170,7 +172,6 @@ $ui.render({
     type: "matrix",
     props: {
       columns: $cache.get("columns") ? $cache.get("columns") : 3,
-      //itemHeight:128,
       square: true,
       spacing: 5,
       template: [{
@@ -179,27 +180,11 @@ $ui.render({
           id: "preview",
           contentMode: $contentMode.scaleAspectFit
         },
-        layout: function (make, view) {
-          make.left.top.bottom.right.inset(0)
-          make.width.equalTo(view.height)
-        }
-      },
-      {
-        type: "label",
-        props: {
-          id: "tags",
-          font: $font("bold", 17),
-          lines: 0
-        },
-        layout: function (make) {
-          make.left.equalTo($("preview").right).offset(10)
-          make.top.bottom.equalTo(0)
-          make.right.inset(10)
-        }
+        layout: $layout.fill
       }],
     },
     layout: function (make, view) {
-      make.top.equalTo($("keyword").bottom).offset(10)
+      make.top.equalTo($("keyword").bottom).offset(5)
       make.left.right.bottom.equalTo(0)
     },
     events: {
@@ -214,13 +199,12 @@ $ui.render({
             handler: function () {
               $ui.push({
                 props: {
-                  id: "t",
-                  title: "Tags: " + post.id
+                  title: "Tags: #" + post.id
                 },
                 views: [{
                   type: "label",
                   props: {
-                    text: post.tags.text.split(" ").join("\n"),
+                    text: post.tags.split(" ").join("\n"),
                     align: $align.center,
                     lines: 0,
                     font: $font("bold", 18)
@@ -266,67 +250,21 @@ function makeSizeText(width, height, size) {
     size /= 1024
     size = size.toFixed(2)
     unit = "MB"
-
-  } else size = size.toFixed(2)
-  if (width > 0) return "(" + width + "*" + height + ", " + size + unit + ")"
-  else return "(" + size + unit + ")"
-
-}
-
-function share(data) {
-  var message = {
-    title: $l10n("SAVED"),
-    message: $l10n("SHARE"),
-    actions: [{
-      title: $l10n("SHARE_QQ"),
-      handler: function () {
-        $share.qq(data)
-      }
-    }, {
-      title: "Share Sheet",
-      handler: function () {
-        $share.sheet(data)
-      }
-    }, {
-      title: "JSBox Universal",
-      handler: function () {
-        $share.universal(data)
-      }
-    }, {
-      title: $l10n("DO_NO"),
-      style: "Cancel"
-    }]
+  } else {
+    size = size.toFixed(0)
   }
-  $ui.action(message)
-}
 
-function render2(posts) {
-  var data = []
-  for (var idx in posts) {
-    var post = posts[idx]
-    data.push({
-      preview: { src: post.preview_url },
-      tags: { text: post.tags },
-      sample: post.sample_url,
-      jpeg: post.jpeg_url,
-      origin: post.file_url,
-      id: post.id,
-      file_size: post.file_size,
-      jpeg_width: post.jpeg_width,
-      jpeg_height: post.jpeg_height,
-      jpeg_size: post.jpeg_file_size,
-      sample_width: post.sample_width,
-      sample_height: post.sample_height,
-      sample_size: post.sample_file_size
-    })
+  if (width > 0) {
+    return "(" + width + "*" + height + ", " + size + unit + ")"
+  } else {
+    return "(" + size + unit + ")"
   }
-  $("matrix").data = data
-  $("matrix").endRefreshing()
+
 }
 
 function newSearch() {
   currentPage = 1
-  $cache.set("keyw", $("keyword").text.replace(/ /, "+"))
+  $cache.set("keyw", $("keyword").text.replace(/ /g, "+"))
   search()
 }
 
@@ -344,21 +282,42 @@ function search() {
       render2(resp.data.posts)
       $("matrix").scrollTo({
         indexPath: $indexPath(0, 0),
-        animated: true // 默认为 true
+        animated: true
       })
     }
   })
 }
 
-
-
+function render2(posts) {
+  var data = []
+  for (var idx in posts) {
+    var post = posts[idx]
+    data.push({
+      preview: { src: post.preview_url },
+      id: post.id,
+      tags: post.tags,
+      sample: post.sample_url,
+      sample_width: post.sample_width,
+      sample_height: post.sample_height,
+      sample_size: post.sample_file_size,
+      jpeg: post.jpeg_url,
+      jpeg_width: post.jpeg_width,
+      jpeg_height: post.jpeg_height,
+      jpeg_size: post.jpeg_file_size,
+      origin: post.file_url,
+      file_size: post.file_size,
+    })
+  }
+  $("matrix").data = data
+  $("matrix").endRefreshing()
+}
 
 function preview(post, q) {
   q = arguments[1] ? arguments[1] : "sample"
   if ($cache.get(post.id + q)) {
     showpreview(post, q)
   } else {
-    $ui.toast("下载" + q + "中")
+    $ui.toast("Downloading: " + q)
     $ui.loading(true)
     $http.download({
       url: post[q],
@@ -410,76 +369,32 @@ function showpreview(post, q) {
   })
 }
 
-// function showpreview(post) {
-//   $console.info(post.jpeg)
-//   $ui.push({
-//     props: {
-//       title: $l10n("PREVIEW") + ": #" + post.id
-//     },
-//     views: [{
-//       type: "image",
-//       props: {
-//         // src: post.sample,
-//         data: $cache.get(post.id),
-//         id: "current",
-//         contentMode: $contentMode.scaleAspectFit
-//       },
-//       layout: $layout.fill
-//     },{
-//       type: "button",
-//       props: {
-//         title: $l10n("DL_H") + "(" + post.jpeg_width + "*" + post.jpeg_height + ")",
-//         id: "dl_h"
-//       },
-//       layout: function (make, view) {
-//         make.left.bottom.inset(10)
-//         make.height.equalTo(32)
-//       },
-//       events: {
-//         tapped: function (sender) {
-//           $ui.toast("下载大图中")
-//           $ui.loading(true)
-//           $http.download({
-//             url: post.jpeg,
-//             progress: function (bytesWritten, totalBytes) {
-//               var percentage = bytesWritten * 1.0 / totalBytes
-//               $ui.progress(percentage)
-//             },
-//             handler: function (resp) {
-//               $ui.loading(false)
-//               $photo.save({
-//                 data: resp.data,
-//                 handler: function (success) {
-//                   share(resp.data)
-//                 }
-//               })
-//             }
-//           })
-//         }
-//       }
-//     },{
-//       type: "button",
-//       props: {
-//         title: $l10n("DL"),
-//         id: "dl"
-//       },
-//       layout: function (make, view) {
-//         make.bottom.equalTo($("dl_h").top).offset(-10)
-//         make.left.equalTo($("dl_h"))
-//       },
-//       events: {
-//         tapped: function (sender) {
-//           $photo.save({
-//             data: $cache.get(post.id),
-//             handler: function (success) {
-//               share($cache.get(post.id))
-//             }
-//           })
-//         }
-//       }
-//     }]
-//   })
-// }
+function share(data) {
+  var message = {
+    title: $l10n("SAVED"),
+    message: $l10n("SHARE"),
+    actions: [{
+      title: $l10n("SHARE_QQ"),
+      handler: function () {
+        $share.qq(data)
+      }
+    }, {
+      title: "Share Sheet",
+      handler: function () {
+        $share.sheet(data)
+      }
+    }, {
+      title: "JSBox Universal",
+      handler: function () {
+        $share.universal(data)
+      }
+    }, {
+      title: $l10n("DO_NO"),
+      style: "Cancel"
+    }]
+  }
+  $ui.action(message)
+}
 
 var currentPage = 0;
 if ($cache.get("keyw")) {
