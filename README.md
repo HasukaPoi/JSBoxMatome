@@ -6,15 +6,27 @@ This project is some handy tools based on [JSBox](https://itunes.apple.com/us/ap
 [netaddi](https://github.com/netaddi) helped me improved the README. Howerver, because the developer is lazy to update README, the content may be out-of-date.
 
 ## What included
-Sort by ABC, Pinyin(not all).
+Only my fav scripts introduced.
 
 ### hex.js: Number System Conversion
 
 Convert numbers between decimal, hexadecimal, binary and more.
 
-### yandereGetter.js: Image Crawler
+It's a trial work.
+
+### yandereGetter.js: Image Crawler for yande.re
 
 A crawler that explores and saves images from [yande.re](https://yande.re).
+
+Getting images by page, downloading 2 quailties of images.
+
+Uses list view. No longer supported.
+
+### yandereGetter2.js: A new version of the above
+
+Renewed with matrix view. Supporting all 3 quailties. Saving & sharing. 
+
+Error handling and settings are also included.
 
 ### 你打字带空格.js: (YOU TYPE WITH SPACING) "Silly" Text Tools
 
@@ -22,19 +34,23 @@ Some text tools, targetting for efficiently made original string looks awesome, 
 
 The "silly" in title is from a slang(with a bit offense) means playful or funny behavior in daily chatting in Chinese.(傻屌, or 沙雕 with similar pronunciation)
 
+No longer supported.
+
 ### 沙雕键盘.js: "Silly" Keyboard
 
 Now JSBox can run script in keyboard, so I made this as enhanced edition of the above.
 
 Need iOS11 to make "get selected text" work.
 
+### 晚饭吃什么.js: What for dinner
+
+Randomly select a dinner solution from a list of available dinner sources. 
+
 ### 快速符号复制.js: Quick Clipboard for Symbols
 
 Placed some often-used symbols which are difficult to directly type. Need to be updated to be keyboard extension.
 
-### 晚饭吃什么.js: What for dinner
-
-Randomly select a dinner solution from a list of available dinner sources. 
+No longer supported.
 
 ## How to use
 1. Make sure you have an iPhone/iPad/iPod running iOS10.0 or higher and up-to-date [JSBox app](https://itunes.apple.com/cn/app/id1312014438) installed.
