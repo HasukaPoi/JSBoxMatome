@@ -1,22 +1,14 @@
-del()
-tuduku()
+del();
 
-function tuduku(){
-  $ui.menu({
-    items: ["继续删除"],
-    handler: function (title, idx) {
-      if(idx==0){
-        del()
-        tuduku()
-      }
-    }
-  })
-}
-
-function del(){
+function del() {
   $photo.delete({
     type: $assetMedia.type.image,
     subType: $assetMedia.subType.none,
-    count: 1
+    count: 1,
+    handler: function (arg0) {
+      if (arg0) {
+        del()
+      }
+    }
   })
 }
