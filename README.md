@@ -30,7 +30,7 @@ The legacy version is ```你打字带空格.js```.
 
 Randomly select a dinner solution from a list of available dinner sources. 
 
-###　Need improvement (TODO)
+## Need improvement (TODO)
 
 hex.js : More features.
 
