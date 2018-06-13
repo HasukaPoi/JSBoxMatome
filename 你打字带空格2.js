@@ -207,6 +207,25 @@ $ui.render({
         }
       }
     }
+  },{
+    type: "button",
+    props: {
+      title: "我↔你",
+      id: "u2m"
+    },
+    layout: function (make, view) {
+      make.width.equalTo(112)
+      make.left.equalTo($("quote").right).offset(10)
+      make.top.equalTo($("preview").bottom).offset(5)
+    },
+    events: {
+      tapped: function (sender) {
+        getOrigin()
+        if (typeof (origin) != "undefined") {
+          send(origin.replace(/你/g,"#WO#").replace(/我/g,"你").replace(/#WO#/g,"我"))
+        }
+      }
+    }
   }
   ]
 });
