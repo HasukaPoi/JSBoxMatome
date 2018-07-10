@@ -10,7 +10,7 @@ var buses = [
         lineId: "529",
         direction: "1"
     }, {
-        title: "B1路往武进",
+        title: "B1路往武进公交中心",
         lineId: "81",
         direction: "1"
     }, {
@@ -18,7 +18,7 @@ var buses = [
         lineId: "81",
         direction: "2"
     }, {
-        title: "B10路客运中心",
+        title: "B10路往客运中心",
         lineId: "810",
         direction: "1"
     }, {
