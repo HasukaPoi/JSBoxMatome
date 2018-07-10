@@ -1,7 +1,7 @@
 var engines =
   [{
       name: "Weblio辞書",
-      pattern: "http://jisho.org/search/[KEY]"
+      pattern: "http://www.weblio.jp/content/[KEY]"
     }, {
       name: "goo国語辞書",
       pattern: "http://dictionary.goo.ne.jp/srch/all/[KEY]/m0u/"
@@ -14,10 +14,10 @@ var engines =
     },{
       name: "品詞表現",
       pattern: "http://collocation.hyogen.info/word/[KEY]"
-    },{
+    }/* ,{
       name: "作文支援システム(请手动搜索)",
       pattern: "https://hinoki-project.org/natsume/"
-    }
+    } */
   ]
 
 if ($context.text) {
@@ -29,16 +29,19 @@ if ($context.text) {
   })
 } else {
   $ui.menu({
-    items: ["搜索剪贴板", "输入内容"],
+    items: ["搜索剪贴板", "输入内容","作文支援システム"],
     handler: function (title, idx) {
       if (idx == 0) {
         showEngines($clipboard.text)
-      } else {
+      } else if(idx==1) {
         $input.text({
           handler: function (text) {
             showEngines(text)
           }
         })
+      }
+      else {
+        $safari.open({ url: "https://hinoki-project.org/natsume/" })
       }
     }
   })
