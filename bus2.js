@@ -98,12 +98,29 @@ function render(data) {
                 }],
                 data: json,
             },
-            layout: $layout.fill,
+            layout: function (make, view) {
+                make.top.inset(50)
+                make.right.bottom.left.inset(0)
+            },
             events: {
                 pulled: function (sender) {
                     showBus(busIdx)
                 }
             }
+        },{
+            type: "label",
+                    props: {
+                        text:"TODO:在这里显示线路详细信息\n标题等车站动态刷新",
+                        id: "maininfo",
+                        align: $align.left,
+                        font: $font(18),
+                        lines:0
+
+                    },
+                    layout: function (make, view) {
+                        make.top.left.right.inset(0)
+                        make.width.equalTo(50)
+                    }
         }]
     })
     //$("list").data=json
