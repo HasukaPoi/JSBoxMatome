@@ -94,7 +94,7 @@ $ui.render({
     layout: function (make, view) {
       make.left.equalTo($("prev").right).offset(5)
       make.centerY.equalTo($("keyword"))
-      make.width.equalTo(18)
+      make.width.equalTo(30)
     },
     events: {
       tapped: function (sender) {
@@ -322,6 +322,7 @@ function render2(posts) {
     })
   }
   $("matrix").data = data
+  //$console.info(data)
   $("matrix").endRefreshing()
 }
 
