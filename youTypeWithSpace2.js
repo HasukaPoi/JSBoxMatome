@@ -140,35 +140,35 @@ $ui.render({
           getOrigin()
           if (typeof (origin) != "undefined") {
             if (origin2 != origin) {
-              if (!$cache.get("key")) {
-                if ($app.env != $env.keyboard) {
-                  $input.text({
-                    type: $kbType.ascii,
-                    placeholder: "请输入哈工大语言云API KEY",
-                    handler: function (text) {
-                      $cache.set("key", text)
-                    }
-                  })
-
-                } else {
-                  $("preview").text = "请到主程序中设置API_KEY"
+              //由于哈工大语言云API迁移，以下代码作废，但暂时保留。
+              /* 
+              $ui.loading(true)
+              $("preview").text = "loading"
+              $http.get({
+                url: "http://api.ltp-cloud.com/analysis/?api_key=c1T867f2y1no3IzEHs3P0YSzCAuzfdnO1rltzjNT&text=" + $text.URLEncode(origin) + "&pattern=ws&format=plain",
+                handler: function (resp) {
+                  //setTimeout("",2000)                
+                  origin2 = origin
+                  $ui.loading(false)
+                  tokenized = resp.data
+                  $console.log(tokenized)
+                  $("preview").text = shuffle2(tokenized)
+                  $console.log(shuffle2(tokenized))
                 }
-              } else {
-                key = $cache.get("key")
-                $ui.loading(true)
-                $("preview").text = "loading"
-                $http.get({
-                  url: "https://api.ltp-cloud.com/analysis/?api_key=" + $cache.get("key") + "&text=" + $text.URLEncode(origin) + "&pattern=ws&format=plain",
-                  handler: function (resp) {
-                    //setTimeout("",2000)                
-                    origin2 = origin
-                    $ui.loading(false)
-                    tokenized = resp.data
-                    $("preview").text = shuffle2(tokenized)
-                    $console.log(shuffle2(tokenized))
-                  }
-                })
-              }
+              }) */
+
+              //原本打算接入讯飞平台，考虑手续繁杂，故放弃。有兴趣的朋友可以自行查找使用。
+              origin2 = origin
+              $text.tokenize({
+                text: origin2,
+                handler: function (results) {
+                  tokenized = results
+                  //$console.info(tokenized)
+                  $("preview").text = shuffle2(tokenized)
+                }
+              })
+
+
             } else {
               $("preview").text = shuffle2(tokenized)
             }
@@ -251,12 +251,10 @@ function shuffle(origin) {
 }
 
 function shuffle2(origin) {
-  var input = origin
-  var arr = input.split(" ");
-  arr.sort(function () {
+  origin.sort(function () {
     return Math.random() > 0.5 ? -1 : 1;
   });
-  var output = (arr.join(""))
+  var output = (origin.join(""))
   return output
 }
 
